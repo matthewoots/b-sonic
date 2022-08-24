@@ -61,6 +61,7 @@
         <arg name="order" value="5"/>
         <arg name="knot_division" value="5"/>
         <arg name="command_rate" value="20"/>
+        <arg name="sensor_range" value="6.0"/>
 
 	    <!-- PX4 Bspline Trajectory Manager -->
 	    <node pkg="pbtm" type="pbtm_node" name="pbtm_node" output="screen">
@@ -75,6 +76,8 @@
             <param name="order" value="$(arg order)"/>
             <param name="max_velocity" value="$(arg max_velocity)"/>
             <param name="knot_division" value="$(arg knot_division)"/>
+            <param name="bypass_timeout" value="2.0"/>
+            <param name="takeoff_land_velocity" value="0.3"/>
         </node>
 
         <!-- FOALME -->
@@ -94,8 +97,8 @@
             <!-- RRT parameters -->
             <param name="runtime_error" value="0.12"/>
             <param name="sub_runtime_error" value="0.02"/>
-            <param name="search_radius" value="7.0"/>
-            <param name="threshold" value="0.2"/>
+            <param name="search_radius" value="$(arg sensor_range)"/>
+            <param name="threshold" value="0.3"/>
             <param name="search_interval" value="7.0"/>
 
             <param name="xybuffer" value="1.0"/>
@@ -113,8 +116,26 @@
 
         </node>
 
+        <!-- bsonic -->
+        <node pkg="bsonic" type="bsonic_node" name="bsonic_node" output="screen">
+            <param name="agent_id" value="$(arg id)"/>
+            <!-- nwu frame -->
+            <rosparam param="obstacles">
+                [1.0, 2.0, 
+                2.0, 0.0,
+                -1.0, -2.0,
+                1.0, -1.0]
+            </rosparam>
+            <rosparam param="height">[-0.2, 2.2]</rosparam>
+            <param name="radius" value="0.3"/>
+            <param name="resolution" value="0.1"/>
+            <param name="cloud_publish_hz" value="5"/>
+            <param name="sensor_range" value="$(arg sensor_range)"/>
+        </node>
+
+
     </group>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find b-sonic)/rviz/display.rviz" />
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find bsonic)/rviz/display.rviz" />
     
 </launch>
