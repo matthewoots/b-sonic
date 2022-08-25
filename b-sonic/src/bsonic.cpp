@@ -146,6 +146,8 @@ class bsonic
                 );
         }
 
+        std::cout << "[bsonic] drone id is " << KRED << _id << KNRM << std::endl;
+
         global_cloud = temp_cloud;
         cloud_timer.start();
     }
