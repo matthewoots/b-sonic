@@ -5,3 +5,6 @@
 [submodule "pbtm"]
 	path = pbtm
 	url = git@github.com:matthewoots/pbtm.git
+[submodule "lro_rrt_ros"]
+	path = lro_rrt_ros
+	url = git@github.com:matthewoots/lro_rrt_ros.git
