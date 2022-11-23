@@ -28,11 +28,11 @@
     <!-- 0. foalme -->
     <!-- 1. plasto -->
     <arg name="use_planner" value="1"/>
-    <arg name="protected_zone" value="0.29"/>
-    <arg name="sensor_range" value="5.25"/>
-    <arg name="sliding_map_size" value="$(eval 4.0 * arg('sensor_range'))"/>
+    <arg name="protected_zone" value="0.2"/>
+    <arg name="sensor_range" value="2.75"/>
+    <arg name="sliding_map_size" value="$(eval 3.0 * arg('sensor_range'))"/>
     <arg name="planning_interval" value="0.15"/>
-    <arg name="local_map_resolution" value="0.5"/>
+    <arg name="local_map_resolution" value="0.20"/>
 
     <!-- drone0 -->
     <group ns="drone$(arg uav_idx)">
@@ -67,7 +67,7 @@
         </include>
         
         <arg name="id" value="drone$(arg uav_idx)"/>
-        <arg name="max_velocity" value="2.0"/>
+        <arg name="max_velocity" value="5.0"/>
         <arg name="order" value="5"/>
         <arg name="knot_division" value="5"/>
         <arg name="command_rate" value="15"/>
@@ -87,6 +87,40 @@
             <param name="knot_division" value="$(arg knot_division)"/>
             <param name="bypass_timeout" value="2.0"/>
             <param name="takeoff_land_velocity" value="0.3"/>
+            <param name="use_px4ctrl" value="true"/>
+
+            <!-- for iris only -->
+            <param name="normalizedthrust_constant" value="0.02"/>
+            <param name="normalizedthrust_offset" value="0.01"/>
+            <param name="attctrl_constant" value="0.3"/>
+            <param name="gains/p_x" value = "1.0"/>
+            <param name="gains/p_y" value = "1.0"/>
+            <param name="gains/p_z" value = "1.0"/>
+            <param name="gains/v_x" value = "1.0"/>
+            <param name="gains/v_y" value = "1.0"/>
+            <param name="gains/v_z" value = "1.0"/>
+            
+            <!-- F = m_a * u ^ 2 + m_b * u + c -->
+            <!-- u is the normalized pwm command (1000~2000 -> 0~1) -->
+            <!-- measured for 1404 at 11.1v -->
+            <param name="m_a" value = "202.33"/>
+            <param name="m_b" value = "145.56"/>
+            <param name="m_c" value = "-8.0219"/>
+
+            <!-- Ratio = actual_command/computed_command = volt_k * voltage + volt_b -->
+            <param name="volt_k" value = "-0.1088"/>
+            <param name="volt_b" value = "2.1964"/>
+
+            <param name="throttle_offset" value = "0.06"/>
+            <param name="throttle_limit" value = "0.3"/>
+
+            <!-- mass of vehicle in grams -->
+            <param name="mass" value="199"/>
+
+            <param name="use_yawTarget" value = "false"/>
+            <param name="max_acc" value = "10.0" />
+            <param name="voltage_compensation" value = "true"/>
+
         </node>
 
         <!-- FOALME -->
@@ -133,14 +167,18 @@
             pkg="plasto" type="plasto_node" 
             name="plasto_node" output="screen">
 
-            <remap from="/$(arg xid)/plasto_node/mock_map" 
+            <remap from="/$(arg xid)/plasto_node/map" 
                 to="/$(arg xid)/local_pcl"/>
             <remap from="/$(arg xid)/plasto_node/pose" 
                 to="/$(arg xid)/uav/nwu"/>
+            <remap from="/$(arg xid)/plasto_node/goal" 
+                to="/$(arg xid)/goal"/>
+            <remap from="/$(arg xid)/plasto_node/command" 
+                to="/$(arg xid)/bypass"/>
 
             <param name="ros/simulation" value="false"/>
             <param name="ros/have_global_cloud" value="true"/>
-            <param name="ros/using_enu" value="true"/>
+            <param name="ros/using_enu" value="false"/>
             <param name="planning/sample_tree" value="true"/>
 
             <param name="ros/threads" value="3"/>
@@ -152,26 +190,33 @@
             <param name="planning/runtime_error" value="0.0050"/>
             <param name="planning/refinement_time" value="0.002"/>
             <param name="planning/sensor_range" value="$(arg sensor_range)"/>
-            <param name="planning/sensor_buffer_multiplier" value="0.5"/>
+            <param name="planning/sensor_buffer_multiplier" value="0.75"/>
             <param name="planning/interval" value="$(arg planning_interval)"/>
             <param name="planning/resolution" value="$(arg protected_zone)"/>
             <rosparam param="planning/search_limit_hfov"> [0.05, 0.95] </rosparam>
             <rosparam param="planning/search_limit_vfov"> [0.10, 0.90] </rosparam>
             <param name="planning/scaled_min_dist_from_node" value="0.10"/>
-            <rosparam param="planning/height"> [1.0, 1.60] </rosparam>
-            <rosparam param="planning/no_fly_zone"> [] </rosparam>
+            <rosparam param="planning/height"> [1.2, 1.60] </rosparam>
+            <rosparam param="planning/no_fly_zone"> 
+                [2, 10, -10, 10,
+                -10, 10, -10, -2,
+                -10, -2, -10, 10,
+                -10, 10, 2, 10] 
+            </rosparam>
 
             <param name="map/resolution" value="$(arg local_map_resolution)"/>
             <param name="map/size" value="5"/>
             <param name="map/vfov" value="1.40"/>
-            <param name="map/hfov" value="2.0944"/>
+            <param name="map/hfov" value="2.6"/>
             <param name="sliding_map/distance_threshold" value="2.0"/>
 
             <param name="amtraj/weight/time_regularization" value="1024.0"/>
-            <param name="amtraj/weight/acceleration" value="15.0"/>
-            <param name="amtraj/weight/jerk" value="0.6"/>
-            <param name="amtraj/limits/max_vel" value="5.00"/>
-            <param name="amtraj/limits/max_acc" value="12.00"/>
+            <param name="amtraj/weight/acceleration" value="20.0"/> 
+            <!-- 15.0 -->
+            <param name="amtraj/weight/jerk" value="4.0"/>
+            <!-- 0.6 -->
+            <param name="amtraj/limits/max_vel" value="4.00"/>
+            <param name="amtraj/limits/max_acc" value="8.00"/>
             <param name="amtraj/limits/iterations" value="23"/>
             <param name="amtraj/limits/epsilon" value="0.2"/>
 
@@ -191,15 +236,18 @@
                 -0.50, -3.0,
                 -0.50, -4.0]
             </rosparam> -->
-            <rosparam param="obstacles">
+            <!-- <rosparam param="obstacles">
                 [0.0, -0.20,
                 0.0, 0.20]
+            </rosparam> -->
+            <rosparam param="obstacles">
+                [0.0, -0.00]
             </rosparam>
             <rosparam param="height">[-0.2, 2.4]</rosparam>
             <param name="radius" value="0.20"/>
             <!-- <param name="radius" value="0.3"/> -->
             <param name="resolution" value="0.05"/>
-            <param name="cloud_publish_hz" value="5"/>
+            <param name="cloud_publish_hz" value="1"/>
             <param name="sensor_range" value="$(arg sensor_range)"/>
         </node>
 
