@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="uav_idx" default="0"/>
+    <arg name="uav_idx" default="1"/>
+    <arg name="uav_id" default="drone$(arg uav_idx)"/>
     <arg name="sensor_range" value="1.9"/>
 
     <group ns="drone$(arg uav_idx)">
         <!-- bsonic -->
         <node pkg="bsonic" type="bsonic_node" name="bsonic_node" output="screen">
-            <param name="agent_id" value="$(arg id)"/>
+            <param name="agent_id" value="$(arg uav_id)"/>
             <!-- nwu frame -->
             <!-- <rosparam param="obstacles">
                 [0.0, 0.50,

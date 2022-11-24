@@ -17,7 +17,7 @@
     <arg name="planning_interval" value="0.15"/>
     <arg name="local_map_resolution" value="0.20"/>
 
-    <remap from="/$(arg id)/mavros/vision_pose/pose" to="/vrpn_client_node/radxa$(arg uav_idx)/pose"/>
+    <!-- <remap from="/$(arg id)/mavros/vision_pose/pose" to="/vrpn_client_node/radxa$(arg uav_idx)/pose"/> -->
 
     <!-- drone0 -->
     <group ns="drone$(arg uav_idx)">
@@ -34,7 +34,6 @@
         <arg name="order" value="5"/>
         <arg name="knot_division" value="5"/>
         <arg name="command_rate" value="15"/>
-        <arg name="sensor_range" value="1.9"/>
 
 	    <!-- PX4 Bspline Trajectory Manager -->
 	    <node pkg="pbtm" type="pbtm_node" name="pbtm_node" output="screen">
@@ -161,10 +160,10 @@
             <param name="planning/scaled_min_dist_from_node" value="0.10"/>
             <rosparam param="planning/height"> [1.2, 1.60] </rosparam>
             <rosparam param="planning/no_fly_zone"> 
-                [2, 10, -10, 10,
-                -10, 10, -10, -2,
-                -10, -2, -10, 10,
-                -10, 10, 2, 10] 
+                [1.75, 10, -10, 10,
+                -10, 10, -10, -1.75,
+                -10, -1.75, -10, 10,
+                -10, 10, 1.75, 10] 
             </rosparam>
 
             <param name="map/resolution" value="$(arg local_map_resolution)"/>
@@ -174,16 +173,16 @@
             <param name="sliding_map/distance_threshold" value="2.0"/>
 
             <param name="amtraj/weight/time_regularization" value="1024.0"/>
-            <param name="amtraj/weight/acceleration" value="20.0"/> 
+            <param name="amtraj/weight/acceleration" value="15.0"/> 
             <!-- 15.0 -->
-            <param name="amtraj/weight/jerk" value="4.0"/>
+            <param name="amtraj/weight/jerk" value="2.0"/>
             <!-- 0.6 -->
-            <param name="amtraj/limits/max_vel" value="4.00"/>
-            <param name="amtraj/limits/max_acc" value="8.00"/>
+            <param name="amtraj/limits/max_vel" value="5.00"/>
+            <param name="amtraj/limits/max_acc" value="7.00"/>
             <param name="amtraj/limits/iterations" value="23"/>
             <param name="amtraj/limits/epsilon" value="0.2"/>
 
-            <param name="safety/total_safety_horizon" value="0.8"/>
+            <param name="safety/total_safety_horizon" value="$(arg planning_interval)"/>
             <param name="safety/reached_threshold" value="0.1"/>
 
         </node>
