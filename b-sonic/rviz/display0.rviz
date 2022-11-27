@@ -5,7 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 540
   - Class: rviz/Selection
@@ -25,7 +24,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: drone0_pcl
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -218,7 +217,7 @@ Visualization Manager:
       Marker Topic: /drone0/plasto_node/safe_corridor
       Name: plasto_sfc
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -226,7 +225,7 @@ Visualization Manager:
       Marker Topic: /drone0/plasto_node/sfc
       Name: MarkerArray
       Namespaces:
-        "": true
+        {}
       Queue Size: 1
       Value: true
     - Alpha: 1

@@ -12,8 +12,8 @@
     <!-- 1. plasto -->
     <arg name="use_planner" value="1"/>
     <arg name="protected_zone" value="0.2"/>
-    <arg name="sensor_range" value="2.75"/>
-    <arg name="sliding_map_size" value="$(eval 3.0 * arg('sensor_range'))"/>
+    <arg name="sensor_range" value="2.25"/>
+    <arg name="sliding_map_size" value="$(eval 4.0 * arg('sensor_range'))"/>
     <arg name="planning_interval" value="0.15"/>
     <arg name="local_map_resolution" value="0.20"/>
 
@@ -170,17 +170,16 @@
             <param name="map/size" value="5"/>
             <param name="map/vfov" value="1.40"/>
             <param name="map/hfov" value="2.6"/>
-            <param name="sliding_map/distance_threshold" value="2.0"/>
 
             <param name="amtraj/weight/time_regularization" value="1024.0"/>
-            <param name="amtraj/weight/acceleration" value="15.0"/> 
+            <param name="amtraj/weight/acceleration" value="32.0"/> 
             <!-- 15.0 -->
-            <param name="amtraj/weight/jerk" value="2.0"/>
+            <param name="amtraj/weight/jerk" value="2.50"/>
             <!-- 0.6 -->
-            <param name="amtraj/limits/max_vel" value="5.00"/>
-            <param name="amtraj/limits/max_acc" value="7.00"/>
-            <param name="amtraj/limits/iterations" value="23"/>
-            <param name="amtraj/limits/epsilon" value="0.2"/>
+            <param name="amtraj/limits/max_vel" value="7.00"/>
+            <param name="amtraj/limits/max_acc" value="15.00"/>
+            <param name="amtraj/limits/iterations" value="32"/>
+            <param name="amtraj/limits/epsilon" value="0.02"/>
 
             <param name="safety/total_safety_horizon" value="$(arg planning_interval)"/>
             <param name="safety/reached_threshold" value="0.1"/>

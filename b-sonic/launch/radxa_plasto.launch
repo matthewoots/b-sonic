@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="uav_id" value="$(env UAV_GROUPNAME)" />
+    <arg name="uav_idx" value="$(env HOSTNAME)" />
+    <arg name="id" value="drone$(arg uav_idx)"/>
+
+    <arg name="protected_zone" value="0.2"/>
+    <arg name="sensor_range" value="2.25"/>
+    <arg name="sliding_map_size" value="$(eval 4.0 * arg('sensor_range'))"/>
+    <arg name="planning_interval" value="0.15"/>
+    <arg name="local_map_resolution" value="0.20"/>
+
+    <group ns="drone$(arg uav_idx)">
+
+        <node pkg="plasto" type="plasto_node" 
+            name="plasto_node" output="screen">
+
+            <remap from="/$(arg id)/plasto_node/map" 
+                to="/$(arg id)/local_pcl"/>
+            <remap from="/$(arg id)/plasto_node/pose" 
+                to="/$(arg id)/uav/nwu"/>
+            <remap from="/$(arg id)/plasto_node/goal" 
+                to="/$(arg id)/goal"/>
+            <remap from="/$(arg id)/plasto_node/command" 
+                to="/$(arg id)/bypass"/>
+
+            <param name="ros/simulation" value="false"/>
+            <param name="ros/have_global_cloud" value="true"/>
+            <param name="ros/using_enu" value="false"/>
+            <param name="planning/sample_tree" value="true"/>
+
+            <param name="ros/threads" value="3"/>
+            <param name="ros/simulation_step" value="30"/>
+            <param name="ros/map_hz" value="15"/>
+
+            <param name="sliding_map/size" value="$(arg sliding_map_size)"/>
+
+            <param name="planning/runtime_error" value="0.0050"/>
+            <param name="planning/refinement_time" value="0.002"/>
+            <param name="planning/sensor_range" value="$(arg sensor_range)"/>
+            <param name="planning/sensor_buffer_multiplier" value="0.75"/>
+            <param name="planning/interval" value="$(arg planning_interval)"/>
+            <param name="planning/resolution" value="$(arg protected_zone)"/>
+            <rosparam param="planning/search_limit_hfov"> [0.05, 0.95] </rosparam>
+            <rosparam param="planning/search_limit_vfov"> [0.10, 0.90] </rosparam>
+            <param name="planning/scaled_min_dist_from_node" value="0.10"/>
+            <rosparam param="planning/height"> [1.2, 1.60] </rosparam>
+            <rosparam param="planning/no_fly_zone"> 
+                [1.80, 10, -10, 10,
+                -10, 10, -10, -1.80,
+                -10, -1.80, -10, 10,
+                -10, 10, 1.80, 10] 
+            </rosparam>
+
+            <param name="map/resolution" value="$(arg local_map_resolution)"/>
+            <param name="map/size" value="5"/>
+            <param name="map/vfov" value="1.40"/>
+            <param name="map/hfov" value="2.6"/>
+
+            <param name="amtraj/weight/time_regularization" value="2048.0"/>
+            <param name="amtraj/weight/acceleration" value="32.0"/> 
+            <!-- 15.0 -->
+            <param name="amtraj/weight/jerk" value="2.50"/>
+            <!-- 2.0 -->
+            <param name="amtraj/limits/max_vel" value="7.00"/>
+            <!-- 5.0 -->
+            <param name="amtraj/limits/max_acc" value="15.00"/>
+            <!-- 7.0 -->
+            <param name="amtraj/limits/iterations" value="32"/>
+            <param name="amtraj/limits/epsilon" value="0.02"/>
+
+            <param name="safety/total_safety_horizon" value="$(arg planning_interval)"/>
+            <param name="safety/reached_threshold" value="0.1"/>
+
+        </node>
+    </group>
+    
+</launch>
